@@ -2,7 +2,7 @@ require('dotenv/config');
 const express = require('express');
 const bodyparser = require('body-parser');
 const mongoose = require('mongoose');
-
+const cors=require('cors');
 const app = express();
 const api = process.env.API_URL;
 
@@ -14,6 +14,8 @@ const ordersRouter = require("./routers/order");
 
 // Middleware to parse JSON
 app.use(bodyparser.json()); // Must come before the routes
+app.use(cors());
+app.options('*',cors);
 
 // Route middlewares
 app.use(`${api}/products`, productRouter);
