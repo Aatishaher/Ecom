@@ -1,6 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const user_module = require("../models/user");
+const bcrypt=require('bcrypt');
+const a=0;
+
 
 router.get("/", async function (req, res) {
     try {
@@ -11,18 +14,27 @@ router.get("/", async function (req, res) {
         res.status(500).send("Internal Error");
     }
 })
-router.post("/", async function (req, res) {
-    const prod = new user_module({
+router.post('/', async (req,res)=>{
+    let user = new user_module({
         name: req.body.name,
-        image: req.body.image,
-        CountInstock: req.body.CountInstock
+        email: req.body.email,
+        passwordHash: bcrypt.hashSync(req.body.password, 10),
+        phone: req.body.phone,
+        isAdmin: req.body.isAdmin,
+        street: req.body.street,
+        apartment: req.body.apartment,
+        zip: req.body.zip,
+        city: req.body.city,
+        country: req.body.country,
     })
-    try {
-        const createdProduct = await prod.save();
-        res.status(201).json(createdProduct);
-    } catch (error) {
-        res.status(500).json({ message: "Error creating product", error: error.message });
-    }
+    user = await user.save();
+
+    if(!user)
+    return res.status(400).send('the user cannot be created!')
+
+    res.send(user);
 })
+
+
 
 module.exports=router;
