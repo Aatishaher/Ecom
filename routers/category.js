@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const category_module = require("../models/category");
+const admin=require("../Helper/adminAuth");
 const { error } = require('console');
 
 router.get("/", async function (req, res) {
@@ -14,7 +15,7 @@ router.get("/", async function (req, res) {
 
 })
 
-router.post("/", async function (req, res) {
+router.post("/",admin(), async function (req, res) {
     let category = new category_module({
         name: req.body.name,
         icon: req.body.icon,
@@ -36,7 +37,7 @@ router.post("/", async function (req, res) {
     }
 })
 
-router.put("/:id", async function (req, res) {
+router.put("/:id",admin(), async function (req, res) {
     const cat = await category_module.findByIdAndUpdate(req.params.id, {
         name: req.body.name,
         icon: req.body.icon,
@@ -70,7 +71,7 @@ router.get("/:id", async function (req, res) {
         })
     }
 })
-router.delete("/:id", async function (req, res) {
+router.delete("/:id",admin(), async function (req, res) {
 
     try {
         const deltedcat = await category_module.findByIdAndDelete(req.params.id);

@@ -2,6 +2,7 @@ require('dotenv/config');
 const express = require('express');
 const bodyparser = require('body-parser');
 const mongoose = require('mongoose');
+const Auth=require("./Helper/userAuth");
 const cors=require('cors');
 const app = express();
 const api = process.env.API_URL;
@@ -17,8 +18,9 @@ app.use(bodyparser.json()); // Must come before the routes
 app.use(cors());
 app.options('*',cors);
 
-// Route middlewares
-app.use(`${api}/products`, productRouter);
+
+// Route middlewar
+app.use(`${api}/products`,Auth(), productRouter);
 app.use(`${api}/category`, categoryRouter);
 app.use(`${api}/user`, userRouter);
 app.use(`${api}/orders`, ordersRouter);

@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const product_module = require("../models/products");
 const category_module = require("../models/category");
+const admin=require("../Helper/adminAuth");
 const mongoose=require('mongoose');
 
 router.get("/", async function (req, res) {
@@ -12,6 +13,7 @@ router.get("/", async function (req, res) {
     catch (err) {
         res.status(500).send("Internal Error");
     }
+    res.status(200).json({ message: "Products route is working!" });
 
 })
 router.get("/:id", async function (req, res) {
@@ -28,7 +30,7 @@ router.get("/:id", async function (req, res) {
 
 })
 
-router.post("/", async function (req, res) {
+router.post("/",admin(), async function (req, res) {
     const category = await category_module.findById(req.body.category);
     if (!category) {
         return res.status(404).send("category not found");
@@ -64,7 +66,7 @@ router.post("/", async function (req, res) {
 
 
 })
-router.put('/:id', async (req, res) => {
+router.put('/:id',admin(), async (req, res) => {
     if (!mongoose.isValidObjectId(req.params.id)) {
         return res.status(400).send('Invalid Product Id')
     }
@@ -95,7 +97,7 @@ router.put('/:id', async (req, res) => {
     res.send(product);
 })
 
-router.delete('/:id', (req, res)=>{
+router.delete('/:id',admin(), (req, res)=>{
     if (!mongoose.isValidObjectId(req.params.id)) {
         return res.status(400).send('Invalid Product Id')
     }
