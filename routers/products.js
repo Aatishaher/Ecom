@@ -2,9 +2,13 @@ const express = require('express');
 const router = express.Router();
 const product_module = require("../models/products");
 const category_module = require("../models/category");
-const admin=require("../Helper/adminAuth");
-const mongoose=require('mongoose');
+const mongoose = require('mongoose');
+const bodyParser = require('body-parser');
+const admin= require('../Helper/adminAuth');
+const app = express();
+app.use(bodyParser.json());
 
+// Get all products
 router.get("/", async function (req, res) {
     try {
         const ProductList = await product_module.find();
@@ -13,9 +17,9 @@ router.get("/", async function (req, res) {
     catch (err) {
         res.status(500).send("Internal Error");
     }
-    res.status(200).json({ message: "Products route is working!" });
+});
 
-})
+// Get product by id
 router.get("/:id", async function (req, res) {
     try {
         const Product = await product_module.findById(req.params.id);
@@ -27,10 +31,10 @@ router.get("/:id", async function (req, res) {
     catch (err) {
         res.status(500).send("Internal Error");
     }
+});
 
-})
-
-router.post("/",admin(), async function (req, res) {
+// Add new product
+router.post("/",admin, async function (req, res) {
     const category = await category_module.findById(req.body.category);
     if (!category) {
         return res.status(404).send("category not found");
@@ -52,25 +56,22 @@ router.post("/",admin(), async function (req, res) {
     })
     try {
         const createdProduct = await prod.save();
-        if (!createdProduct) {
-            return res.status(404).send("not created");
-        }
-        res.status(200).send(createdProduct);
+        res.status(201).send(createdProduct);
     }
     catch (err) {
         res.status(500).json({
-            error: err,
-            sucess: true
-        })
+            success: false,
+            error: err.message || 'Something went wrong',
+        });
     }
+});
 
-
-})
-router.put('/:id',admin(), async (req, res) => {
+// Update product
+router.put('/:id',admin, async (req, res) => {
     if (!mongoose.isValidObjectId(req.params.id)) {
         return res.status(400).send('Invalid Product Id')
     }
-    const category = await Category.findById(req.body.category);
+    const category = await category_module.findById(req.body.category);
     if (!category) return res.status(400).send('Invalid Category')
 
     const product = await product_module.findByIdAndUpdate(
@@ -95,34 +96,34 @@ router.put('/:id',admin(), async (req, res) => {
         return res.status(500).send('the product cannot be updated!')
 
     res.send(product);
-})
+});
 
-router.delete('/:id',admin(), (req, res)=>{
+// Delete product
+router.delete('/:id',admin, (req, res) => {
     if (!mongoose.isValidObjectId(req.params.id)) {
         return res.status(400).send('Invalid Product Id')
     }
-    product_module.findByIdAndDelete(req.params.id).then(product =>{
-        if(product) {
-            return res.status(200).json({success: true, message: 'the product is deleted!'})
+    product_module.findByIdAndDelete(req.params.id).then(product => {
+        if (product) {
+            return res.status(200).json({ success: true, message: 'the product is deleted!' })
         } else {
-            return res.status(404).json({success: false , message: "product not found!"})
+            return res.status(404).json({ success: false, message: "product not found!" })
         }
-    }).catch(err=>{
-       return res.status(500).json({success: false, error: err}) 
+    }).catch(err => {
+        return res.status(500).json({ success: false, error: err })
     })
-})
+});
 
-router.get(`/get/count`, async (req, res) =>{
-    const productCount = await Product.countDocuments((count) => count)
+// Get product count
+router.get(`/get/count`, async (req, res) => {
+    const productCount = await product_module.countDocuments();  // Correct model reference
 
-    if(!productCount) {
-        res.status(500).json({success: false})
-    } 
+    if (!productCount) {
+        return res.status(500).json({ success: false });
+    }
     res.send({
         productCount: productCount
     });
-})
-
-
+});
 
 module.exports = router;

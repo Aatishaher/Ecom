@@ -1,26 +1,32 @@
 const jwt = require('jsonwebtoken');
 
 function adminAuth(req, res, next) {
-  const token = req.header('Authorization')?.replace('Bearer ', '');  // Extract token from Authorization header
-
-  if (!token) {
-    return res.status(401).send('Access denied. No token provided.');
-  }
-
-  try {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);  // Decode the token using the secret key
-
-    // Check if the user is an admin
-    if (!decoded.isAdmin) {
-      return res.status(403).send('Access denied. You do not have admin privileges.');
+    // Check if the Authorization header is present
+    const token = req.header('Authorization'); // Extract token from the header
+    
+    if (!token || !token.startsWith('Bearer ')) {
+        return res.status(401).json({ message: 'Access denied. No token provided.' });
     }
 
-    req.user = decoded;  // Attach user info to request object (optional, if needed in route)
-    next();  // Proceed to the next middleware/route
-  } catch (error) {
-    console.error(error);
-    return res.status(401).send('Invalid or expired token');
-  }
+    // Remove 'Bearer ' part to get the actual token
+    const actualToken = token.replace('Bearer ', '');
+
+    try {
+        // Verify the token using the secret key from environment variables
+        const decoded = jwt.verify(actualToken, process.env.JWTPass);
+
+        // Check if the decoded user is an admin
+        if (!decoded.isAdmin) {
+            return res.status(403).json({ message: 'Access denied. You do not have admin privileges.' });
+        }
+
+        // Attach the decoded user information to the request object for further use
+        req.user = decoded;
+        next(); // Proceed to the next middleware or route handler
+    } catch (error) {
+        console.error(error);
+        return res.status(401).json({ message: 'Invalid or expired token.' });
+    }
 }
 
 module.exports = adminAuth;

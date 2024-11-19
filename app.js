@@ -20,10 +20,10 @@ app.options('*',cors);
 
 
 // Route middlewar
-app.use(`${api}/products`,Auth(), productRouter);
+app.use(`${api}/products`, productRouter);
 app.use(`${api}/category`, categoryRouter);
 app.use(`${api}/user`, userRouter);
-app.use(`${api}/orders`, ordersRouter);
+app.use(`${api}/orders`,Auth(), ordersRouter);
 
 // MongoDB connection
 mongoose.connect(process.env.MONGODB_URL, {

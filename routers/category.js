@@ -15,7 +15,7 @@ router.get("/", async function (req, res) {
 
 })
 
-router.post("/",admin(), async function (req, res) {
+router.post("/",admin, async function (req, res) {
     let category = new category_module({
         name: req.body.name,
         icon: req.body.icon,
@@ -37,7 +37,7 @@ router.post("/",admin(), async function (req, res) {
     }
 })
 
-router.put("/:id",admin(), async function (req, res) {
+router.put("/:id",admin, async function (req, res) {
     const cat = await category_module.findByIdAndUpdate(req.params.id, {
         name: req.body.name,
         icon: req.body.icon,
@@ -71,7 +71,7 @@ router.get("/:id", async function (req, res) {
         })
     }
 })
-router.delete("/:id",admin(), async function (req, res) {
+router.delete("/:id",admin, async function (req, res) {
 
     try {
         const deltedcat = await category_module.findByIdAndDelete(req.params.id);
